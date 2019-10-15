@@ -4,6 +4,18 @@ const server = express();
 server.use(express.json());
 
 let numberOfRequests = 0;
+
+// Global middleware
+function logRequests(req, res, next) {
+  numberOfRequests++;
+
+  console.log(`Número de requisições: ${numberOfRequests}`);
+
+  return next();
+}
+
+server.use(logRequests);
+
 const projects = [];
 
 // Local middleware
