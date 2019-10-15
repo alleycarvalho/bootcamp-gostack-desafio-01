@@ -6,6 +6,20 @@ server.use(express.json());
 let numberOfRequests = 0;
 const projects = [];
 
+// Local middleware
+function checkIfProjectExists(req, res, next) {
+  const { id } = req.params;
+  const project = projects.find(p => p.id == id);
+
+  if (!project) {
+    return res.status(400).json({
+      error: 'Project not found!'
+    });
+  }
+
+  return next();
+}
+
 // List projects
 server.get('/projects', (req, res) => {
   return res.json(projects);
@@ -26,7 +40,7 @@ server.post("/projects", (req, res) => {
 });
 
 // Read project
-server.get('/projects/:id', (req, res) => {
+server.get('/projects/:id', checkIfProjectExists, (req, res) => {
   const { id } = req.params;
 
   const project = projects.find(p => p.id == id);
@@ -35,7 +49,7 @@ server.get('/projects/:id', (req, res) => {
 });
 
 // Update project
-server.put('/projects/:id', (req, res) => {
+server.put('/projects/:id', checkIfProjectExists, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
 
@@ -47,7 +61,7 @@ server.put('/projects/:id', (req, res) => {
 });
 
 // Delete project
-server.delete('/projects/:id', (req, res) => {
+server.delete('/projects/:id', checkIfProjectExists, (req, res) => {
   const { id } = req.params;
 
   const projectIndex = projects.findIndex(p => p.id == id);
@@ -58,7 +72,7 @@ server.delete('/projects/:id', (req, res) => {
 });
 
 // Create task in a project
-server.post("/projects/:id/tasks", (req, res) => {
+server.post("/projects/:id/tasks", checkIfProjectExists, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
 
